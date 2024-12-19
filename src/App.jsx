@@ -3,21 +3,27 @@ import { useState } from 'react'
 import { useLoadScript } from "@react-google-maps/api";
 import Navbar from './components/Navbar'
 import HospitalList from './components/HospitalList'
-import HospitalMap from './components/HospitalMap';
+import { libraries } from './utils/exportfunction';
+import Footer from './components/Footer';
+
+
 function App() {
 
   const [location, setLocation] = useState({})
   const [hospital, setHospial] = useState([])
   const [address, setAddress] = useState('')
   const [radius, setRadius] = useState(4)
+  // const [hospitallocation, setHospialLocation] = useState({})
+  // const [hospitallen,setHospitalLen] = useState(0)
 
-  const libraries = ["places"];
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: 'AIzaSyDyvTvU89e-PTuzB24DpgbEks_AEjlH5Os',
     libraries
   })
 
   if (!isLoaded) return <div>....is Loading</div>
+
+
 
   const geocodeAddress = async () => {
     const geocode = new window.google.maps.Geocoder();
@@ -51,7 +57,7 @@ function App() {
 
     const request = {
       location: new window.google.maps.LatLng(location.lat, location.lng),
-      radius: parseInt(radius),
+      radius: parseInt(radius) * 1000,
       type: ["hospital"]
     }
 
@@ -88,24 +94,30 @@ function App() {
     handleSearch()
   }
 
- 
+
+
+
   return (
-    <div className='w-full min-h-screen'>
+    <div className='w-full min-h-screen '>
       <Navbar />
-      <div className='w-full flex gap-4 justify-center mt-8'>
+      <div className='w-full flex gap-4 justify-center mt-6'>
         <input type="text" className='border-2 p-2 rounded-md w-[300px]' placeholder='Enter The Address' value={address} onChange={(e) => setAddress(e.target.value)} />
         <button className='bg-blue-500 text-white px-2 py-2 rounded-md' onClick={handleSearch}>Search Hospital</button>
       </div>
-      <div className='w-full flex justify-center mt-8 gap-2'>
+      <div className='w-full flex justify-center mt-4 gap-2'>
         <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={increaseRadius}>+</button>
         <p className='bg-blue-500 text-white p-4 rounded-md'>{`Radius : ${radius}`}</p>
         <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={decreaseRadius}>-</button>
       </div>
       <div className='flex justify-center text-xl my-4'>{`Total Hopitals : ${hospital.length}`}</div>
-      <div  className={hospital.length > 0 ? "mt-8 flex justify-center gap-4" : "hidden"}>
+      <div className={hospital.length > 0 ? "mt-4 flex justify-center gap-4" : "hidden"}>
         <HospitalList hospital={hospital} />
-        <HospitalMap hospital={hospital} location={location} />
       </div>
+      <div className='w-full h-[300px]'></div>
+      <div className='w-full '>
+        <Footer />
+      </div>
+
     </div>
   )
 }
