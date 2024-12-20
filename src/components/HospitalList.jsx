@@ -10,6 +10,8 @@ function HospitalList({ hospital, setHospialLocation}) {
                         <div className="p-2">
                             <p>{h.name.length > 30 ? h.name.slice(0, 30) : h.name}</p>
                             <p>{h.vicinity.length > 30 ? h.vicinity.slice(0, 30) : h.vicinity}</p>
+                            <p>distance : {h.distance.toFixed(2)} km</p>
+                           
                         </div>
                     </div>
                 ))

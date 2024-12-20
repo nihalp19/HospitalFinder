@@ -13,6 +13,7 @@ function App() {
   const [hospital, setHospial] = useState([])
   const [address, setAddress] = useState('')
   const [radius, setRadius] = useState(4)
+  const [sort, setSort] = useState('')
   // const [hospitallocation, setHospialLocation] = useState({})
   // const [hospitallen,setHospitalLen] = useState(0)
 
@@ -61,15 +62,56 @@ function App() {
       type: ["hospital"]
     }
 
+    const getDistance = (lat1, lng1, lat2, lng2) => {
+      const toRad = (value) => (value * Math.PI) / 180;
+      const R = 6371;
+
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c;
+
+      return distance;
+    }
+    
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-        console.log("result", results);
-        setHospial(results)
-        console.log("Hospitals found")
+        const hospitalsWithDistance = results.map((hospital) => {
+          const hospitalLocation = hospital.geometry.location;
+          const distance = getDistance(
+            location.lat,
+            location.lng,
+            hospitalLocation.lat(),
+            hospitalLocation.lng()
+          );
+          return { ...hospital, distance };
+        });
+        const sortedHospitals = hospitalsWithDistance.sort(
+          (a, b) => a.distance - b.distance
+        );
+
+        setHospial(sortedHospitals);
+        console.log("Hospitals sorted by distance");
       } else {
-        console.log("No hospital found")
+        console.log("No hospital found");
       }
     })
+
+    // service.nearbySearch(request, (results, status) => {
+    //   if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+    //     console.log("result", results);
+    //     setHospial(results)
+    //     console.log("Hospitals found")
+    //   } else {
+    //     console.log("No hospital found")
+    //   }
+    // })
 
   }
 
@@ -105,9 +147,10 @@ function App() {
         <button className='bg-blue-500 text-white px-2 py-2 rounded-md' onClick={handleSearch}>Search Hospital</button>
       </div>
       <div className='w-full flex justify-center mt-4 gap-2'>
-        <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={increaseRadius}>+</button>
+        {radius !== 0 && <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={decreaseRadius}>-</button>}
         <p className='bg-blue-500 text-white p-4 rounded-md'>{`Radius : ${radius}`}</p>
-        <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={decreaseRadius}>-</button>
+        <button className='py-2 px-4 bg-blue-500 text-white rounded-md' onClick={increaseRadius}>+</button>
+
       </div>
       <div className='flex justify-center text-xl my-4'>{`Total Hopitals : ${hospital.length}`}</div>
       <div className={hospital.length > 0 ? "mt-4 flex justify-center gap-4" : "hidden"}>
