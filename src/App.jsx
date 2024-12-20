@@ -10,22 +10,34 @@ import Footer from './components/Footer';
 function App() {
 
   const [location, setLocation] = useState({})
-  const [hospital, setHospial] = useState([])
+  const [hospital, setHospital] = useState([])
   const [address, setAddress] = useState('')
   const [radius, setRadius] = useState(4)
-  const [sort, setSort] = useState('')
   // const [hospitallocation, setHospialLocation] = useState({})
   // const [hospitallen,setHospitalLen] = useState(0)
+
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAP_API,
     libraries
   })
 
-  if (!isLoaded) return <div>....is Loading</div>
-
-
-
+  useEffect(() => {
+    const localHospital = localStorage.getItem("hospital");
+    const localAddress = localStorage.getItem("address")
+    if (localHospital && localAddress) {
+      setHospital(JSON.parse(localHospital));
+      setAddress(localAddress)
+    }
+  }, []); 
+  
+  useEffect(() => {
+    if (hospital.length > 0) {
+      localStorage.setItem('hospital', JSON.stringify(hospital));
+      localStorage.setItem('address',address)
+    }
+  }, [hospital]);
+  
   const geocodeAddress = async () => {
     const geocode = new window.google.maps.Geocoder();
     return new Promise((resolve, reject) => {
@@ -79,7 +91,7 @@ function App() {
 
       return distance;
     }
-    
+
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK) {
         const hospitalsWithDistance = results.map((hospital) => {
@@ -96,7 +108,7 @@ function App() {
           (a, b) => a.distance - b.distance
         );
 
-        setHospial(sortedHospitals);
+        setHospital(sortedHospitals);
         console.log("Hospitals sorted by distance");
       } else {
         console.log("No hospital found");
@@ -106,7 +118,7 @@ function App() {
     // service.nearbySearch(request, (results, status) => {
     //   if (status === window.google.maps.places.PlacesServiceStatus.OK) {
     //     console.log("result", results);
-    //     setHospial(results)
+    //     setHospital(results)
     //     console.log("Hospitals found")
     //   } else {
     //     console.log("No hospital found")
@@ -135,7 +147,6 @@ function App() {
     setRadius(prev => prev - 1)
     handleSearch()
   }
-
 
 
 
