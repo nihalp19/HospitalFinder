@@ -17,7 +17,7 @@ function App() {
   // const [hospitallen,setHospitalLen] = useState(0)
 
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyDyvTvU89e-PTuzB24DpgbEks_AEjlH5Os',
+    googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAP_API,
     libraries
   })
 
@@ -113,7 +113,10 @@ function App() {
       <div className={hospital.length > 0 ? "mt-4 flex justify-center gap-4" : "hidden"}>
         <HospitalList hospital={hospital} />
       </div>
-      <div className='w-full h-[300px]'></div>
+      <div className='w-full h-[350px]'>
+
+
+      </div>
       <div className='w-full '>
         <Footer />
       </div>
